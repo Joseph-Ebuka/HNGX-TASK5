@@ -1,0 +1,15 @@
+{
+  "name": "HelpMeOut",
+  "description": "Screen record and share screens easily",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_title": "Screen Record",
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "logo.png",
+      "128": "logo.png"
+    }
+  },
+  "permissions": ["activeTab", "videoCapture", "desktopCapture"]
+}

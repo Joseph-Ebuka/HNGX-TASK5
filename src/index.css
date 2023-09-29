@@ -1,0 +1,16 @@
+/* body {
+  min-width: 600px;
+  min-height: 439px;
+  padding: 24px 24px 32px 24px;
+} */
+
+.yes{
+  min-width: 600px;
+  min-height: 439px;
+  padding: 24px 24px 32px 24px;
+}
+.no{
+  min-width: 320px;
+  min-height: 439px;
+  padding: 24px 24px 32px 24px;
+}
