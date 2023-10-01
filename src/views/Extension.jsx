@@ -6,6 +6,7 @@ import { HiOutlineDesktopComputer } from "react-icons/hi";
 import { TiTabsOutline } from "react-icons/ti";
 import { GoDeviceCameraVideo } from "react-icons/go";
 import { logo } from "../assets";
+import { useNavigate } from "react-router-dom";
 
 const Extension = () => {
   const [recording, setRecording] = useState(false);
@@ -17,15 +18,21 @@ const Extension = () => {
   const [audio, setAudio] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [popup, setPopUp] = useState(false);
+  const navigate = useNavigate();
+
+
+
+
   const startRecording = async () => {
     try {
       // Request access to screen capture
+      setPopUp(true);
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: checked,
         audio: audio,
       });
-      setPopUp(true);
       screenStream.current = stream;
+     
 
       // Create a MediaRecorder instance
       mediaRecorder.current = new MediaRecorder(stream);
@@ -45,6 +52,39 @@ const Extension = () => {
         const link = URL.createObjectURL(screenBlob);
         // You can use screenUrl to play or share the recording
         setScreenUrl(link);
+
+        const screenFile = new File([screenBlob], "recorded.webm", {
+          type: "video/webm",
+        });
+
+        const sendVideoToBackend = async (file) => {
+          try {
+            const formData = new FormData();
+            formData.append("videos", file);
+
+            const response = await fetch(
+              "https://abdulhngx-cevh.onrender.com/api/upload",
+              {
+                method: "POST",
+                mode: 'no-cors',
+                body: formData,
+              }
+            );
+
+            if (response.ok) {
+              console.log("Video uploaded successfully");
+              alert("sent")
+            } else {
+              console.error("Failed to upload video");
+              
+            }
+            } catch (error) {
+            console.error("Error uploading video:", error);
+                 alert("not sent")
+          }
+        };
+
+        sendVideoToBackend(screenFile);
       };
 
       // Start recording
@@ -57,51 +97,22 @@ const Extension = () => {
         setErrorMessage(
           "Permission denied: You need to grant permission to record your screen and audio."
         );
+        setPopUp(false);
       } else if (!checked) {
         setErrorMessage("Camera permission needed");
+        setPopUp(false);
       } else {
         setErrorMessage("An error occurred while starting the recording.");
+        setPopUp(false);
       }
     }
   };
-  const screenBlob = new Blob(screenChunks.current, {
-    type: "video/webm",
-  });
-
-  const screenFile = new File([screenBlob], "recorded.webm", {
-    type: "video/webm",
-  });
-
-  const sendVideoToBackend = async (file) => {
-    try {
-      const formData = new FormData();
-      formData.append("video", file);
-
-      const response = await fetch("https://abdulhngx-cevh.onrender.com/api", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        console.log("Video uploaded successfully");
-      } else {
-        console.error("Failed to upload video");
-      }
-    } catch (error) {
-      console.error("Error uploading video:", error);
-    }
-  };
-
-  // Call the function to send the video to the backend
-  useEffect(() => {
-    sendVideoToBackend(screenFile);
-  }, []);
 
   const stopRecording = () => {
     if (mediaRecorder.current && recording) {
       mediaRecorder.current.stop();
       screenStream.current.getTracks().forEach((track) => track.stop());
-      setRecording(false);
+      setRecording(false);                  
     }
   };
   const handleCheckBoxChange = (e) => {
@@ -178,10 +189,14 @@ const Extension = () => {
                 </label>
               </div>
             </Actions>
-            <Submit onClick={startRecording} disabled={recording}>
-              Start Recording
-            </Submit>
-            <button onClick={stopRecording}>stp</button>
+            {!recording ? (
+              <Submit onClick={startRecording} disabled={recording}>
+                Start Recording
+              </Submit>
+            ) : (
+              <Submit onClick={stopRecording} disabled={!recording}>Stop Recording</Submit>
+            )}
+
             {screenUrl && (
               <>
                 {

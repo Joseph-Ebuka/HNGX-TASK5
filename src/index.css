@@ -1,8 +1,7 @@
-/* body {
-  min-width: 600px;
-  min-height: 439px;
-  padding: 24px 24px 32px 24px;
-} */
+*{
+  padding: 0;
+  margin: 0;
+}
 
 .yes{
   min-width: 600px;
